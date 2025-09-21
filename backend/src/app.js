@@ -29,6 +29,9 @@ import { swaggerSpec, swaggerUi, swaggerUiOptions } from './config/swagger.js';
 
 const app = express();
 
+// Configurar trust proxy para Vercel
+app.set('trust proxy', true);
+
 // Configurar EJS como motor de plantillas
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../../frontend/views'));
@@ -64,7 +67,10 @@ app.use(cookieParser());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100, // máximo 100 requests por IP cada 15 minutos
-  message: 'Demasiadas solicitudes desde esta IP, intenta de nuevo más tarde.'
+  message: 'Demasiadas solicitudes desde esta IP, intenta de nuevo más tarde.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: true
 });
 app.use('/api/', limiter);
 
