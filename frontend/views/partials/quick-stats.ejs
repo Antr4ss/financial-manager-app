@@ -1,0 +1,81 @@
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Ingresos</h6>
+                        <h4 id="quickTotalIncome">
+                            <%= new Intl.NumberFormat('es-ES', {
+                                style: 'currency',
+                                currency: userPreferences?.currency || 'USD'
+                            }).format(dashboardData?.summary?.totalIncome || 0) %>
+                        </h4>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-arrow-up-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Total Gastos</h6>
+                        <h4 id="quickTotalExpense">
+                            <%= new Intl.NumberFormat('es-ES', {
+                                style: 'currency',
+                                currency: userPreferences?.currency || 'USD'
+                            }).format(dashboardData?.summary?.totalExpense || 0) %>
+                        </h4>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-arrow-down-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Balance</h6>
+                        <h4 id="quickBalance">
+                            <%= new Intl.NumberFormat('es-ES', {
+                                style: 'currency',
+                                currency: userPreferences?.currency || 'USD'
+                            }).format(dashboardData?.summary?.balance || 0) %>
+                        </h4>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-wallet2 fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Transacciones</h6>
+                        <h4 id="quickTransactions"><%= dashboardData?.summary?.totalTransactions || 0 %></h4>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-list-ul fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

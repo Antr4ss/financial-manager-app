@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <%- include('partials/navbar') %>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <!-- Incomes Section -->
+        <div id="incomes" class="section">
+            <div class="row">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>
+                            <i class="bi bi-arrow-up-circle me-2"></i>Gestión de Ingresos
+                        </h2>
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#incomeModal">
+                            <i class="bi bi-plus-circle me-2"></i>Nuevo Ingreso
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-funnel me-2"></i>Filtros
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" id="incomeCategoryFilter">
+                                <option value="">Todas las categorías</option>
+                                <option value="salario">Salario</option>
+                                <option value="ventas">Ventas</option>
+                                <option value="inversiones">Inversiones</option>
+                                <option value="freelance">Freelance</option>
+                                <option value="bonos">Bonos</option>
+                                <option value="comisiones">Comisiones</option>
+                                <option value="alquiler">Alquiler</option>
+                                <option value="intereses">Intereses</option>
+                                <option value="dividendos">Dividendos</option>
+                                <option value="reembolsos">Reembolsos</option>
+                                <option value="regalos">Regalos</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="incomeStartDateFilter">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="incomeEndDateFilter">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Ordenar por</label>
+                            <select class="form-select" id="incomeSortBy">
+                                <option value="date">Fecha</option>
+                                <option value="amount">Monto</option>
+                                <option value="description">Descripción</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Orden</label>
+                            <select class="form-select" id="incomeSortOrder">
+                                <option value="desc">Descendente</option>
+                                <option value="asc">Ascendente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" onclick="filterIncomes()">
+                                <i class="bi bi-funnel"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="clearIncomeFilters()">
+                                <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incomes Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Monto</th>
+                                    <th>Categoría</th>
+                                    <th>Fecha</th>
+                                    <th>Método</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="incomesTableBody">
+                                <% if (incomes && incomes.length > 0) { %>
+                                    <% incomes.forEach(income => { %>
+                                        <tr>
+                                            <td><%= income.description %></td>
+                                            <td class="text-success fw-bold">
+                                                <%= new Intl.NumberFormat('es-ES', {
+                                                    style: 'currency',
+                                                    currency: userPreferences?.currency || 'USD'
+                                                }).format(income.amount) %>
+                                            </td>
+                                            <td><span class="badge bg-primary"><%= income.category %></span></td>
+                                            <td>
+                                                <%= new Date(income.date).toLocaleDateString('es-ES', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                }) %>
+                                            </td>
+                                            <td><%= income.paymentMethod %></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editIncome('<%= income._id %>')">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" onclick="deleteIncome('<%= income._id %>')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">No hay ingresos registrados</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <%- include('partials/modals') %>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/js/app.js"></script>
+</body>
+</html>

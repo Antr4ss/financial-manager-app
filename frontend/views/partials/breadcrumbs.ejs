@@ -1,0 +1,43 @@
+<!-- Breadcrumbs -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="/dashboard" class="text-decoration-none">
+                <i class="bi bi-house me-1"></i>Inicio
+            </a>
+        </li>
+        <% if (currentPage === 'dashboard') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </li>
+        <% } else if (currentPage === 'incomes') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-arrow-up-circle me-1"></i>Ingresos
+            </li>
+        <% } else if (currentPage === 'expenses') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-arrow-down-circle me-1"></i>Gastos
+            </li>
+        <% } else if (currentPage === 'reports') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-bar-chart me-1"></i>Reportes
+            </li>
+        <% } else if (currentPage === 'settings') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-gear me-1"></i>Configuración
+            </li>
+        <% } else if (currentPage === 'login') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
+            </li>
+        <% } else if (currentPage === 'register') { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-person-plus me-1"></i>Crear Cuenta
+            </li>
+        <% } else { %>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="bi bi-file-text me-1"></i><%= currentPage.charAt(0).toUpperCase() + currentPage.slice(1) %>
+            </li>
+        <% } %>
+    </ol>
+</nav>

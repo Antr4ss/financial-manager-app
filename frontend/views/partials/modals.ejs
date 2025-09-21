@@ -1,0 +1,181 @@
+<!-- Income Modal -->
+<div class="modal fade" id="incomeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-arrow-up-circle me-2"></i>Nuevo Ingreso
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="incomeForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="incomeDescription" class="form-label">Descripción *</label>
+                        <input type="text" class="form-control" id="incomeDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeAmount" class="form-label">Monto *</label>
+                        <input type="number" class="form-control" id="incomeAmount" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeCategory" class="form-label">Categoría *</label>
+                        <select class="form-select" id="incomeCategory" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="salario">Salario</option>
+                            <option value="ventas">Ventas</option>
+                            <option value="inversiones">Inversiones</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="bonos">Bonos</option>
+                            <option value="comisiones">Comisiones</option>
+                            <option value="alquiler">Alquiler</option>
+                            <option value="intereses">Intereses</option>
+                            <option value="dividendos">Dividendos</option>
+                            <option value="reembolsos">Reembolsos</option>
+                            <option value="regalos">Regalos</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeDate" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="incomeDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomePaymentMethod" class="form-label">Método de Pago</label>
+                        <select class="form-select" id="incomePaymentMethod">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="crypto">Criptomoneda</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeNotes" class="form-label">Notas</label>
+                        <textarea class="form-control" id="incomeNotes" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="incomeRecurring">
+                            <label class="form-check-label" for="incomeRecurring">
+                                Ingreso recurrente
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="incomeRecurringFrequency" style="display: none;">
+                        <label for="incomeRecurringFreq" class="form-label">Frecuencia</label>
+                        <select class="form-select" id="incomeRecurringFreq">
+                            <option value="semanal">Semanal</option>
+                            <option value="quincenal">Quincenal</option>
+                            <option value="mensual">Mensual</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="anual">Anual</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar Ingreso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Modal -->
+<div class="modal fade" id="expenseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-arrow-down-circle me-2"></i>Nuevo Gasto
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="expenseForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="expenseDescription" class="form-label">Descripción *</label>
+                        <input type="text" class="form-control" id="expenseDescription" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseAmount" class="form-label">Monto *</label>
+                        <input type="number" class="form-control" id="expenseAmount" step="0.01" min="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseCategory" class="form-label">Categoría *</label>
+                        <select class="form-select" id="expenseCategory" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="alimentacion">Alimentación</option>
+                            <option value="transporte">Transporte</option>
+                            <option value="vivienda">Vivienda</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="salud">Salud</option>
+                            <option value="educacion">Educación</option>
+                            <option value="entretenimiento">Entretenimiento</option>
+                            <option value="ropa">Ropa</option>
+                            <option value="tecnologia">Tecnología</option>
+                            <option value="deudas">Deudas</option>
+                            <option value="ahorro">Ahorro</option>
+                            <option value="inversion">Inversión</option>
+                            <option value="impuestos">Impuestos</option>
+                            <option value="seguros">Seguros</option>
+                            <option value="mantenimiento">Mantenimiento</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseDate" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="expenseDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="expensePaymentMethod" class="form-label">Método de Pago</label>
+                        <select class="form-select" id="expensePaymentMethod">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta</option>
+                            <option value="transferencia">Transferencia</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="crypto">Criptomoneda</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="expenseNotes" class="form-label">Notas</label>
+                        <textarea class="form-control" id="expenseNotes" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="expenseRecurring">
+                            <label class="form-check-label" for="expenseRecurring">
+                                Gasto recurrente
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="expenseRecurringFrequency" style="display: none;">
+                        <label for="expenseRecurringFreq" class="form-label">Frecuencia</label>
+                        <select class="form-select" id="expenseRecurringFreq">
+                            <option value="semanal">Semanal</option>
+                            <option value="quincenal">Quincenal</option>
+                            <option value="mensual">Mensual</option>
+                            <option value="trimestral">Trimestral</option>
+                            <option value="anual">Anual</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="expenseEssential">
+                            <label class="form-check-label" for="expenseEssential">
+                                Gasto esencial
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Guardar Gasto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

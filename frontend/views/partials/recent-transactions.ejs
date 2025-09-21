@@ -1,0 +1,113 @@
+<!-- Recent Transactions -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-arrow-up-circle me-2 text-success"></i>Ingresos Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (dashboardData?.recentIncomes && dashboardData.recentIncomes.length > 0) { %>
+                    <% dashboardData.recentIncomes.forEach(income => { %>
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                            <div>
+                                <h6 class="mb-1"><%= income.description %></h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-tag me-1"></i><%= income.category %>
+                                    <span class="ms-2">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        <%= new Date(income.date).toLocaleDateString('es-ES', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                        }) %>
+                                    </span>
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <h6 class="text-success mb-0">
+                                    <%= new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: userPreferences?.currency || 'USD'
+                                    }).format(income.amount) %>
+                                </h6>
+                                <small class="text-muted"><%= income.paymentMethod %></small>
+                            </div>
+                        </div>
+                    <% }); %>
+                    <div class="text-center mt-3">
+                        <a href="/incomes" class="btn btn-outline-success btn-sm">
+                            Ver Todos los Ingresos
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 mb-3"></i>
+                        <p>No hay ingresos recientes</p>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#incomeModal">
+                            Agregar Primer Ingreso
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-arrow-down-circle me-2 text-danger"></i>Gastos Recientes
+                </h5>
+            </div>
+            <div class="card-body">
+                <% if (dashboardData?.recentExpenses && dashboardData.recentExpenses.length > 0) { %>
+                    <% dashboardData.recentExpenses.forEach(expense => { %>
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                            <div>
+                                <h6 class="mb-1"><%= expense.description %></h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-tag me-1"></i><%= expense.category %>
+                                    <span class="ms-2">
+                                        <i class="bi bi-calendar me-1"></i>
+                                        <%= new Date(expense.date).toLocaleDateString('es-ES', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric'
+                                        }) %>
+                                    </span>
+                                </small>
+                                <% if (expense.isEssential) { %>
+                                    <br><span class="badge bg-warning mt-1">Esencial</span>
+                                <% } %>
+                            </div>
+                            <div class="text-end">
+                                <h6 class="text-danger mb-0">
+                                    <%= new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: userPreferences?.currency || 'USD'
+                                    }).format(expense.amount) %>
+                                </h6>
+                                <small class="text-muted"><%= expense.paymentMethod %></small>
+                            </div>
+                        </div>
+                    <% }); %>
+                    <div class="text-center mt-3">
+                        <a href="/expenses" class="btn btn-outline-danger btn-sm">
+                            Ver Todos los Gastos
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 mb-3"></i>
+                        <p>No hay gastos recientes</p>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                            Agregar Primer Gasto
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
