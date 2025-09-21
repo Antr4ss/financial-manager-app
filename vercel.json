@@ -27,5 +27,10 @@
       "src": "/(.*)",
       "dest": "backend/src/app.js"
     }
-  ]
+  ],
+  "functions": {
+    "backend/src/app.js": {
+      "includeFiles": "frontend/**"
+    }
+  }
 }

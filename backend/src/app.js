@@ -84,10 +84,9 @@ app.use(express.static(path.join(__dirname, '../../frontend')));
 // Importar middleware de autenticación de rutas
 import { protectRoute, protectAdminRoute } from './middleware/routeAuth.js';
 
-// Middleware para proteger archivos sensibles
-app.use('/js/app.js', protectRoute);
-app.use('/css/style.css', protectRoute);
-app.use('/views', protectRoute);
+// Middleware para proteger archivos sensibles (solo para usuarios autenticados)
+// Los archivos estáticos como app.js y style.css deben ser accesibles sin autenticación
+// para permitir el login y registro
 
 // Configuración de Swagger (protegida con autenticación)
 app.use('/api-docs', protectRoute, swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
