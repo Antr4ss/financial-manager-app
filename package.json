@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node backend/src/app.js",
     "dev": "nodemon backend/src/app.js",
-    "test": "jest"
+    "test": "jest",
+    "build": "echo 'No build step required'",
+    "vercel-build": "echo 'No build step required'"
   },
   "keywords": [
     "finanzas",
@@ -16,8 +18,8 @@
     "express",
     "mongodb"
   ],
-  "author": "Tu Nombre",
-  "license": "MIT",
+  "author": "Harold Guerrero",
+  "license": "UPTC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
