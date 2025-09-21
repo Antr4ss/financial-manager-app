@@ -7,7 +7,7 @@
 let currentUser = null;
 let authToken = null;
 let userPreferences = null;
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://financial-manager-app-beta.vercel.app/api';
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
