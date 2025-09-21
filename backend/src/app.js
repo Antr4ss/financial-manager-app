@@ -30,7 +30,7 @@ import { swaggerSpec, swaggerUi, swaggerUiOptions } from './config/swagger.js';
 const app = express();
 
 // Configurar trust proxy para Vercel
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 // Configurar EJS como motor de plantillas
 app.set('view engine', 'ejs');
@@ -70,7 +70,7 @@ const limiter = rateLimit({
   message: 'Demasiadas solicitudes desde esta IP, intenta de nuevo más tarde.',
   standardHeaders: true,
   legacyHeaders: false,
-  trustProxy: true
+  trustProxy: 1
 });
 app.use('/api/', limiter);
 
