@@ -46,7 +46,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
-      connectSrc: ["'self'", "https://financial-manager-application.vercel.app"],
+      connectSrc: ["'self'", "https://financial-manager-application.vercel.app", "http://localhost:3000"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
       frameSrc: ["'none'"],

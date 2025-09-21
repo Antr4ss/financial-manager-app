@@ -7,7 +7,11 @@
 let currentUser = null;
 let authToken = null;
 let userPreferences = null;
-const API_BASE_URL = 'https://financial-manager-application.vercel.app/api';
+
+// Determine API base URL based on environment
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : 'https://financial-manager-application.vercel.app/api';
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
