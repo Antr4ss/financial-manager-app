@@ -16,16 +16,16 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // Importar rutas
-import authRoutes from './routes/auth.js';
-import incomeRoutes from './routes/income.js';
-import expenseRoutes from './routes/expense.js';
-import userRoutes from './routes/user.js';
+import authRoutes from './routes/auth.mjs';
+import incomeRoutes from './routes/income.mjs';
+import expenseRoutes from './routes/expense.mjs';
+import userRoutes from './routes/user.mjs';
 
 // Importar middleware
-import errorHandler from './middleware/errorHandler.js';
+import errorHandler from './middleware/errorHandler.mjs';
 
 // Importar configuración de Swagger
-import { swaggerSpec, swaggerUi, swaggerUiOptions } from './config/swagger.js';
+import { swaggerSpec, swaggerUi, swaggerUiOptions } from './config/swagger.mjs';
 
 const app = express();
 
@@ -82,7 +82,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../../frontend')));
 
 // Importar middleware de autenticación de rutas
-import { protectRoute, protectAdminRoute } from './middleware/routeAuth.js';
+import { protectRoute, protectAdminRoute } from './middleware/routeAuth.mjs';
 
 // Middleware para proteger archivos sensibles (solo para usuarios autenticados)
 // Los archivos estáticos como app.js y style.css deben ser accesibles sin autenticación
@@ -197,9 +197,9 @@ app.get('/api/health', (req, res) => {
  */
 app.get('/api/admin/stats', protectAdminRoute, async (req, res) => {
   try {
-    const { default: User } = await import('./models/User.js');
-    const { default: Income } = await import('./models/Income.js');
-    const { default: Expense } = await import('./models/Expense.js');
+    const { default: User } = await import('./models/User.mjs');
+    const { default: Income } = await import('./models/Income.mjs');
+    const { default: Expense } = await import('./models/Expense.mjs');
     
     // Obtener estadísticas generales del sistema
     const totalUsers = await User.countDocuments({ isActive: true });
@@ -238,7 +238,7 @@ app.get('/api/admin/stats', protectAdminRoute, async (req, res) => {
 });
 
 // Importar middleware de autenticación
-import { authenticateToken } from './middleware/auth.js';
+import { authenticateToken } from './middleware/auth.mjs';
 
 // Middleware para verificar autenticación en vistas
 const checkAuth = (req, res, next) => {
@@ -378,9 +378,9 @@ app.get('/register', checkAuthOptional, (req, res) => {
 app.get('/dashboard', checkAuth, async (req, res) => {
   try {
     // Obtener datos del dashboard
-    const { default: Income } = await import('./models/Income.js');
-    const { default: Expense } = await import('./models/Expense.js');
-    const { default: User } = await import('./models/User.js');
+    const { default: Income } = await import('./models/Income.mjs');
+    const { default: Expense } = await import('./models/Expense.mjs');
+    const { default: User } = await import('./models/User.mjs');
     
     const userId = req.user.id;
     
@@ -412,7 +412,7 @@ app.get('/dashboard', checkAuth, async (req, res) => {
       user: user,
       isAuthenticated: true,
       userPreferences: user.preferences || {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: { email: false, push: false }
       },
@@ -435,7 +435,7 @@ app.get('/dashboard', checkAuth, async (req, res) => {
       user: req.user,
       isAuthenticated: true,
       userPreferences: {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: { email: false, push: false }
       },
@@ -451,8 +451,8 @@ app.get('/dashboard', checkAuth, async (req, res) => {
 
 app.get('/incomes', checkAuth, async (req, res) => {
   try {
-    const { default: Income } = await import('./models/Income.js');
-    const { default: User } = await import('./models/User.js');
+    const { default: Income } = await import('./models/Income.mjs');
+    const { default: User } = await import('./models/User.mjs');
     const userId = req.user.id;
     
     // Obtener usuario con preferencias
@@ -469,7 +469,7 @@ app.get('/incomes', checkAuth, async (req, res) => {
       user: user,
       isAuthenticated: true,
       userPreferences: user.preferences || {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: { email: false, push: false }
       },
@@ -483,7 +483,7 @@ app.get('/incomes', checkAuth, async (req, res) => {
       user: req.user,
       isAuthenticated: true,
       userPreferences: {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: { email: false, push: false }
       },
@@ -495,8 +495,8 @@ app.get('/incomes', checkAuth, async (req, res) => {
 
 app.get('/expenses', checkAuth, async (req, res) => {
   try {
-    const { default: Expense } = await import('./models/Expense.js');
-    const { default: User } = await import('./models/User.js');
+    const { default: Expense } = await import('./models/Expense.mjs');
+    const { default: User } = await import('./models/User.mjs');
     const userId = req.user.id;
     
     // Obtener usuario con preferencias
@@ -513,7 +513,7 @@ app.get('/expenses', checkAuth, async (req, res) => {
       user: user,
       isAuthenticated: true,
       userPreferences: user.preferences || {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: { email: false, push: false }
       },
@@ -527,7 +527,7 @@ app.get('/expenses', checkAuth, async (req, res) => {
       user: req.user,
       isAuthenticated: true,
       userPreferences: {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: { email: false, push: false }
       },
@@ -539,8 +539,8 @@ app.get('/expenses', checkAuth, async (req, res) => {
 
 app.get('/reports', checkAuth, async (req, res) => {
   try {
-    const { default: Income } = await import('./models/Income.js');
-    const { default: Expense } = await import('./models/Expense.js');
+    const { default: Income } = await import('./models/Income.mjs');
+    const { default: Expense } = await import('./models/Expense.mjs');
     const userId = req.user.id;
     
     // Obtener datos para reportes
@@ -575,7 +575,7 @@ app.get('/reports', checkAuth, async (req, res) => {
 
 app.get('/settings', checkAuth, async (req, res) => {
   try {
-    const { default: User } = await import('./models/User.js');
+    const { default: User } = await import('./models/User.mjs');
     const userId = req.user.id;
     
     // Obtener datos del usuario
@@ -587,7 +587,7 @@ app.get('/settings', checkAuth, async (req, res) => {
       user: user,
       isAuthenticated: true,
       userPreferences: user.preferences || {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: {
           email: false,
@@ -603,7 +603,7 @@ app.get('/settings', checkAuth, async (req, res) => {
       user: req.user,
       isAuthenticated: true,
       userPreferences: {
-        currency: 'USD',
+        currency: 'COP',
         language: 'es',
         notifications: {
           email: false,

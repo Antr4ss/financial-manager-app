@@ -6,21 +6,22 @@ import {
   getMe,
   updateProfile,
   changePassword,
-  logout
-} from '../controllers/authController.js';
-import { authenticateToken } from '../middleware/auth.js';
+  logout,
+  refreshToken
+} from '../controllers/authController.mjs';
+import { authenticateToken } from '../middleware/auth.mjs';
 import { 
   handleValidationErrors, 
   userValidations, 
   customValidations 
-} from '../middleware/validation.js';
+} from '../middleware/validation.mjs';
 import { 
   sanitizeInput, 
   sanitizeEmail, 
   preventInjection, 
   limitDataSize, 
   validateContentType 
-} from '../middleware/sanitization.js';
+} from '../middleware/sanitization.mjs';
 
 const router = express.Router();
 
@@ -331,5 +332,34 @@ router.put('/change-password', authenticateToken, [
  *         description: Error interno del servidor
  */
 router.post('/logout', authenticateToken, logout);
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Renovar token de autenticación
+ *     tags: [Autenticación]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token renovado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 token:
+ *                   type: string
+ *       401:
+ *         description: Token inválido o expirado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.post('/refresh', authenticateToken, refreshToken);
 
 export default router;

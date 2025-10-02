@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import Expense from '../models/Expense.js';
+import Expense from '../models/Expense.mjs';
 
 /**
  * @desc    Obtener todos los gastos del usuario

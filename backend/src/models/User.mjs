@@ -46,13 +46,13 @@ const userSchema = new mongoose.Schema({
   preferences: {
     currency: {
       type: String,
-      default: 'USD',
-      enum: ['USD', 'EUR', 'MXN', 'COP', 'ARS', 'BRL']
+      default: 'COP',
+      enum: ['COP']
     },
     language: {
       type: String,
       default: 'es',
-      enum: ['es', 'en', 'pt']
+      enum: ['es']
     },
     notifications: {
       email: {

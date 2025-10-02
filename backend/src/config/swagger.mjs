@@ -12,8 +12,8 @@ const options = {
       version: '1.0.0',
       description: 'API REST para gestión de finanzas personales y de negocio',
       contact: {
-        name: 'Tu Nombre',
-        email: 'tu@email.com'
+        name: 'Harold Guerrero',
+        email: 'harold.guerrero@uptc.edu.co'
       },
       license: {
         name: 'MIT',

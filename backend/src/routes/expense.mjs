@@ -1,42 +1,14 @@
 import express from 'express';
 import { body, query } from 'express-validator';
 import {
-  getIncomes,
-  getIncomeById,
-  createIncome,
-  updateIncome,
-  deleteIncome,
-  getIncomeStats
-} from '../controllers/incomeController.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { 
-  handleValidationErrors, 
-  transactionValidations, 
-  incomeValidations, 
-  queryValidations, 
-  paramValidations 
-} from '../middleware/validation.js';
-import { 
-  sanitizeInput, 
-  sanitizeDescription, 
-  sanitizeNotes, 
-  sanitizeTags, 
-  sanitizeDate, 
-  sanitizeNumericFields, 
-  sanitizeBooleanFields, 
-  sanitizeQueryParams, 
-  preventInjection, 
-  limitDataSize, 
-  validateContentType 
-} from '../middleware/sanitization.js';
-import { 
-  validateUserAccess, 
-  validateTransactionLimits, 
-  validateFinancialConsistency, 
-  validateUserPlanLimits, 
-  validateDataIntegrity, 
-  validateActiveUser 
-} from '../middleware/businessValidation.js';
+  getExpenses,
+  getExpenseById,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+  getExpenseStats
+} from '../controllers/expenseController.mjs';
+import { authenticateToken } from '../middleware/auth.mjs';
 
 const router = express.Router();
 
@@ -47,7 +19,7 @@ router.use(authenticateToken);
  * @swagger
  * components:
  *   schemas:
- *     Income:
+ *     Expense:
  *       type: object
  *       required:
  *         - description
@@ -56,24 +28,24 @@ router.use(authenticateToken);
  *       properties:
  *         _id:
  *           type: string
- *           description: ID único del ingreso
+ *           description: ID único del gasto
  *         user:
  *           type: string
  *           description: ID del usuario propietario
  *         description:
  *           type: string
- *           description: Descripción del ingreso
+ *           description: Descripción del gasto
  *         amount:
  *           type: number
- *           description: Monto del ingreso
+ *           description: Monto del gasto
  *         category:
  *           type: string
- *           enum: [salario, ventas, inversiones, freelance, bonos, comisiones, alquiler, intereses, dividendos, reembolsos, regalos, otros]
- *           description: Categoría del ingreso
+ *           enum: [alimentacion, transporte, vivienda, servicios, salud, educacion, entretenimiento, ropa, tecnologia, deudas, ahorro, inversion, impuestos, seguros, mantenimiento, otros]
+ *           description: Categoría del gasto
  *         date:
  *           type: string
  *           format: date-time
- *           description: Fecha del ingreso
+ *           description: Fecha del gasto
  *         paymentMethod:
  *           type: string
  *           enum: [efectivo, tarjeta, transferencia, cheque, crypto, otros]
@@ -83,7 +55,7 @@ router.use(authenticateToken);
  *           description: Notas adicionales
  *         isRecurring:
  *           type: boolean
- *           description: Si es un ingreso recurrente
+ *           description: Si es un gasto recurrente
  *         recurringFrequency:
  *           type: string
  *           enum: [semanal, quincenal, mensual, trimestral, anual]
@@ -92,10 +64,13 @@ router.use(authenticateToken);
  *           type: array
  *           items:
  *             type: string
- *           description: Tags del ingreso
+ *           description: Tags del gasto
+ *         isEssential:
+ *           type: boolean
+ *           description: Si es un gasto esencial
  *         isActive:
  *           type: boolean
- *           description: Estado activo del ingreso
+ *           description: Estado activo del gasto
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -106,10 +81,10 @@ router.use(authenticateToken);
 
 /**
  * @swagger
- * /api/incomes:
+ * /api/expenses:
  *   get:
- *     summary: Obtener todos los ingresos del usuario
- *     tags: [Ingresos]
+ *     summary: Obtener todos los gastos del usuario
+ *     tags: [Gastos]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -157,7 +132,7 @@ router.use(authenticateToken);
  *         description: Orden de clasificación
  *     responses:
  *       200:
- *         description: Lista de ingresos obtenida exitosamente
+ *         description: Lista de gastos obtenida exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -168,10 +143,10 @@ router.use(authenticateToken);
  *                 data:
  *                   type: object
  *                   properties:
- *                     incomes:
+ *                     expenses:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Income'
+ *                         $ref: '#/components/schemas/Expense'
  *                     pagination:
  *                       type: object
  *                       properties:
@@ -189,24 +164,22 @@ router.use(authenticateToken);
  *         description: Error interno del servidor
  */
 router.get('/', [
-  sanitizeQueryParams,
-  queryValidations.page,
-  queryValidations.limit,
-  queryValidations.startDate,
-  queryValidations.endDate,
-  queryValidations.sortBy,
-  queryValidations.sortOrder,
-  body('category').optional().isIn(['salario', 'ventas', 'inversiones', 'freelance', 'bonos', 'comisiones', 'alquiler', 'intereses', 'dividendos', 'reembolsos', 'regalos', 'otros']).withMessage('Categoría no válida'),
-  validateActiveUser,
-  handleValidationErrors
-], getIncomes);
+  query('page').optional().isInt({ min: 1 }).withMessage('La página debe ser un número entero mayor a 0'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('El límite debe ser un número entre 1 y 100'),
+  query('category').optional().isIn(['alimentacion', 'transporte', 'vivienda', 'servicios', 'salud', 'educacion', 'entretenimiento', 'ropa', 'tecnologia', 'deudas', 'ahorro', 'inversion', 'impuestos', 'seguros', 'mantenimiento', 'otros']).withMessage('Categoría no válida'),
+  query('startDate').optional().isISO8601().withMessage('Fecha de inicio debe ser válida'),
+  query('endDate').optional().isISO8601().withMessage('Fecha de fin debe ser válida'),
+  query('sortBy').optional().isIn(['date', 'amount', 'description']).withMessage('Campo de ordenamiento no válido'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('Orden de clasificación no válido'),
+  query('isEssential').optional().isBoolean().withMessage('isEssential debe ser un valor booleano')
+], getExpenses);
 
 /**
  * @swagger
- * /api/incomes/stats:
+ * /api/expenses/stats:
  *   get:
- *     summary: Obtener estadísticas de ingresos
- *     tags: [Ingresos]
+ *     summary: Obtener estadísticas de gastos
+ *     tags: [Gastos]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -237,7 +210,7 @@ router.get('/', [
  *                   properties:
  *                     total:
  *                       type: number
- *                       description: Total de ingresos
+ *                       description: Total de gastos
  *                     monthlyTotal:
  *                       type: number
  *                       description: Total del mes actual
@@ -260,7 +233,21 @@ router.get('/', [
  *                             description: Total por categoría
  *                           count:
  *                             type: integer
- *                             description: Cantidad de ingresos por categoría
+ *                             description: Cantidad de gastos por categoría
+ *                     essentialStats:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: boolean
+ *                             description: Si es esencial o no
+ *                           total:
+ *                             type: number
+ *                             description: Total por tipo
+ *                           count:
+ *                             type: integer
+ *                             description: Cantidad por tipo
  *       401:
  *         description: Token inválido o expirado
  *       500:
@@ -269,14 +256,14 @@ router.get('/', [
 router.get('/stats', [
   query('startDate').optional().isISO8601().withMessage('Fecha de inicio debe ser válida'),
   query('endDate').optional().isISO8601().withMessage('Fecha de fin debe ser válida')
-], getIncomeStats);
+], getExpenseStats);
 
 /**
  * @swagger
- * /api/incomes/{id}:
+ * /api/expenses/{id}:
  *   get:
- *     summary: Obtener un ingreso por ID
- *     tags: [Ingresos]
+ *     summary: Obtener un gasto por ID
+ *     tags: [Gastos]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -285,10 +272,10 @@ router.get('/stats', [
  *         required: true
  *         schema:
  *           type: string
- *         description: ID del ingreso
+ *         description: ID del gasto
  *     responses:
  *       200:
- *         description: Ingreso obtenido exitosamente
+ *         description: Gasto obtenido exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -299,27 +286,23 @@ router.get('/stats', [
  *                 data:
  *                   type: object
  *                   properties:
- *                     income:
- *                       $ref: '#/components/schemas/Income'
+ *                     expense:
+ *                       $ref: '#/components/schemas/Expense'
  *       404:
- *         description: Ingreso no encontrado
+ *         description: Gasto no encontrado
  *       401:
  *         description: Token inválido o expirado
  *       500:
  *         description: Error interno del servidor
  */
-router.get('/:id', [
-  paramValidations.id,
-  validateUserAccess('income'),
-  handleValidationErrors
-], getIncomeById);
+router.get('/:id', getExpenseById);
 
 /**
  * @swagger
- * /api/incomes:
+ * /api/expenses:
  *   post:
- *     summary: Crear nuevo ingreso
- *     tags: [Ingresos]
+ *     summary: Crear nuevo gasto
+ *     tags: [Gastos]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -337,16 +320,16 @@ router.get('/:id', [
  *                 type: string
  *                 minLength: 3
  *                 maxLength: 200
- *                 example: "Salario mensual"
+ *                 example: "Compra de supermercado"
  *               amount:
  *                 type: number
  *                 minimum: 0.01
  *                 maximum: 999999999.99
- *                 example: 2500.00
+ *                 example: 150.50
  *               category:
  *                 type: string
- *                 enum: [salario, ventas, inversiones, freelance, bonos, comisiones, alquiler, intereses, dividendos, reembolsos, regalos, otros]
- *                 example: "salario"
+ *                 enum: [alimentacion, transporte, vivienda, servicios, salud, educacion, entretenimiento, ropa, tecnologia, deudas, ahorro, inversion, impuestos, seguros, mantenimiento, otros]
+ *                 example: "alimentacion"
  *               date:
  *                 type: string
  *                 format: date-time
@@ -354,26 +337,29 @@ router.get('/:id', [
  *               paymentMethod:
  *                 type: string
  *                 enum: [efectivo, tarjeta, transferencia, cheque, crypto, otros]
- *                 example: "transferencia"
+ *                 example: "tarjeta"
  *               notes:
  *                 type: string
  *                 maxLength: 500
- *                 example: "Pago por nómina"
+ *                 example: "Compra semanal"
  *               isRecurring:
  *                 type: boolean
  *                 example: true
  *               recurringFrequency:
  *                 type: string
  *                 enum: [semanal, quincenal, mensual, trimestral, anual]
- *                 example: "mensual"
+ *                 example: "semanal"
  *               tags:
  *                 type: array
  *                 items:
  *                   type: string
- *                 example: ["trabajo", "nómina"]
+ *                 example: ["supermercado", "comida"]
+ *               isEssential:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       201:
- *         description: Ingreso creado exitosamente
+ *         description: Gasto creado exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -386,8 +372,8 @@ router.get('/:id', [
  *                 data:
  *                   type: object
  *                   properties:
- *                     income:
- *                       $ref: '#/components/schemas/Income'
+ *                     expense:
+ *                       $ref: '#/components/schemas/Expense'
  *       400:
  *         description: Datos de entrada inválidos
  *       401:
@@ -396,133 +382,15 @@ router.get('/:id', [
  *         description: Error interno del servidor
  */
 router.post('/', [
-  validateContentType(['application/json']),
-  limitDataSize(2048), // 2KB para crear ingreso
-  preventInjection,
-  sanitizeInput,
-  sanitizeDescription,
-  sanitizeNotes,
-  sanitizeTags,
-  sanitizeDate,
-  ...sanitizeNumericFields(['amount']),
-  ...sanitizeBooleanFields(['isRecurring']),
-  transactionValidations.description,
-  transactionValidations.amount,
-  transactionValidations.date,
-  transactionValidations.paymentMethod,
-  transactionValidations.notes,
-  transactionValidations.tags,
-  transactionValidations.tagItem,
-  incomeValidations.category,
-  incomeValidations.isRecurring,
-  incomeValidations.recurringFrequency,
-  validateActiveUser,
-  validateTransactionLimits,
-  validateFinancialConsistency,
-  validateUserPlanLimits,
-  validateDataIntegrity,
-  handleValidationErrors
-], createIncome);
-
-/**
- * @swagger
- * /api/incomes/{id}:
- *   put:
- *     summary: Actualizar ingreso
- *     tags: [Ingresos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID del ingreso
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               description:
- *                 type: string
- *                 minLength: 3
- *                 maxLength: 200
- *                 example: "Salario mensual actualizado"
- *               amount:
- *                 type: number
- *                 minimum: 0.01
- *                 maximum: 999999999.99
- *                 example: 3000.00
- *               category:
- *                 type: string
- *                 enum: [salario, ventas, inversiones, freelance, bonos, comisiones, alquiler, intereses, dividendos, reembolsos, regalos, otros]
- *                 example: "salario"
- *               date:
- *                 type: string
- *                 format: date-time
- *                 example: "2024-01-15T00:00:00.000Z"
- *               paymentMethod:
- *                 type: string
- *                 enum: [efectivo, tarjeta, transferencia, cheque, crypto, otros]
- *                 example: "transferencia"
- *               notes:
- *                 type: string
- *                 maxLength: 500
- *                 example: "Pago por nómina actualizado"
- *               isRecurring:
- *                 type: boolean
- *                 example: true
- *               recurringFrequency:
- *                 type: string
- *                 enum: [semanal, quincenal, mensual, trimestral, anual]
- *                 example: "mensual"
- *               tags:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["trabajo", "nómina", "actualizado"]
- *     responses:
- *       200:
- *         description: Ingreso actualizado exitosamente
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     income:
- *                       $ref: '#/components/schemas/Income'
- *       400:
- *         description: Datos de entrada inválidos
- *       404:
- *         description: Ingreso no encontrado
- *       401:
- *         description: Token inválido o expirado
- *       500:
- *         description: Error interno del servidor
- */
-router.put('/:id', [
   body('description')
-    .optional()
     .trim()
     .isLength({ min: 3, max: 200 })
     .withMessage('La descripción debe tener entre 3 y 200 caracteres'),
   body('amount')
-    .optional()
     .isFloat({ min: 0.01, max: 999999999.99 })
     .withMessage('El monto debe ser un número entre 0.01 y 999,999,999.99'),
   body('category')
-    .optional()
-    .isIn(['salario', 'ventas', 'inversiones', 'freelance', 'bonos', 'comisiones', 'alquiler', 'intereses', 'dividendos', 'reembolsos', 'regalos', 'otros'])
+    .isIn(['alimentacion', 'transporte', 'vivienda', 'servicios', 'salud', 'educacion', 'entretenimiento', 'ropa', 'tecnologia', 'deudas', 'ahorro', 'inversion', 'impuestos', 'seguros', 'mantenimiento', 'otros'])
     .withMessage('Categoría no válida'),
   body('date')
     .optional()
@@ -551,15 +419,19 @@ router.put('/:id', [
   body('tags.*')
     .optional()
     .isLength({ max: 20 })
-    .withMessage('Cada tag no puede exceder 20 caracteres')
-], updateIncome);
+    .withMessage('Cada tag no puede exceder 20 caracteres'),
+  body('isEssential')
+    .optional()
+    .isBoolean()
+    .withMessage('isEssential debe ser un booleano')
+], createExpense);
 
 /**
  * @swagger
- * /api/incomes/{id}:
- *   delete:
- *     summary: Eliminar ingreso
- *     tags: [Ingresos]
+ * /api/expenses/{id}:
+ *   put:
+ *     summary: Actualizar gasto
+ *     tags: [Gastos]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -568,10 +440,147 @@ router.put('/:id', [
  *         required: true
  *         schema:
  *           type: string
- *         description: ID del ingreso
+ *         description: ID del gasto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               description:
+ *                 type: string
+ *                 minLength: 3
+ *                 maxLength: 200
+ *                 example: "Compra de supermercado actualizada"
+ *               amount:
+ *                 type: number
+ *                 minimum: 0.01
+ *                 maximum: 999999999.99
+ *                 example: 175.75
+ *               category:
+ *                 type: string
+ *                 enum: [alimentacion, transporte, vivienda, servicios, salud, educacion, entretenimiento, ropa, tecnologia, deudas, ahorro, inversion, impuestos, seguros, mantenimiento, otros]
+ *                 example: "alimentacion"
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2024-01-15T00:00:00.000Z"
+ *               paymentMethod:
+ *                 type: string
+ *                 enum: [efectivo, tarjeta, transferencia, cheque, crypto, otros]
+ *                 example: "tarjeta"
+ *               notes:
+ *                 type: string
+ *                 maxLength: 500
+ *                 example: "Compra semanal actualizada"
+ *               isRecurring:
+ *                 type: boolean
+ *                 example: true
+ *               recurringFrequency:
+ *                 type: string
+ *                 enum: [semanal, quincenal, mensual, trimestral, anual]
+ *                 example: "semanal"
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["supermercado", "comida", "actualizado"]
+ *               isEssential:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       200:
- *         description: Ingreso eliminado exitosamente
+ *         description: Gasto actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     expense:
+ *                       $ref: '#/components/schemas/Expense'
+ *       400:
+ *         description: Datos de entrada inválidos
+ *       404:
+ *         description: Gasto no encontrado
+ *       401:
+ *         description: Token inválido o expirado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.put('/:id', [
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ min: 3, max: 200 })
+    .withMessage('La descripción debe tener entre 3 y 200 caracteres'),
+  body('amount')
+    .optional()
+    .isFloat({ min: 0.01, max: 999999999.99 })
+    .withMessage('El monto debe ser un número entre 0.01 y 999,999,999.99'),
+  body('category')
+    .optional()
+    .isIn(['alimentacion', 'transporte', 'vivienda', 'servicios', 'salud', 'educacion', 'entretenimiento', 'ropa', 'tecnologia', 'deudas', 'ahorro', 'inversion', 'impuestos', 'seguros', 'mantenimiento', 'otros'])
+    .withMessage('Categoría no válida'),
+  body('date')
+    .optional()
+    .isISO8601()
+    .withMessage('La fecha debe ser válida'),
+  body('paymentMethod')
+    .optional()
+    .isIn(['efectivo', 'tarjeta', 'transferencia', 'cheque', 'crypto', 'otros'])
+    .withMessage('Método de pago no válido'),
+  body('notes')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('Las notas no pueden exceder 500 caracteres'),
+  body('isRecurring')
+    .optional()
+    .isBoolean()
+    .withMessage('isRecurring debe ser un booleano'),
+  body('recurringFrequency')
+    .optional()
+    .isIn(['semanal', 'quincenal', 'mensual', 'trimestral', 'anual'])
+    .withMessage('Frecuencia de recurrencia no válida'),
+  body('tags')
+    .optional()
+    .isArray()
+    .withMessage('Los tags deben ser un array'),
+  body('tags.*')
+    .optional()
+    .isLength({ max: 20 })
+    .withMessage('Cada tag no puede exceder 20 caracteres'),
+  body('isEssential')
+    .optional()
+    .isBoolean()
+    .withMessage('isEssential debe ser un booleano')
+], updateExpense);
+
+/**
+ * @swagger
+ * /api/expenses/{id}:
+ *   delete:
+ *     summary: Eliminar gasto
+ *     tags: [Gastos]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del gasto
+ *     responses:
+ *       200:
+ *         description: Gasto eliminado exitosamente
  *         content:
  *           application/json:
  *             schema:
@@ -582,12 +591,12 @@ router.put('/:id', [
  *                 message:
  *                   type: string
  *       404:
- *         description: Ingreso no encontrado
+ *         description: Gasto no encontrado
  *       401:
  *         description: Token inválido o expirado
  *       500:
  *         description: Error interno del servidor
  */
-router.delete('/:id', deleteIncome);
+router.delete('/:id', deleteExpense);
 
 export default router;

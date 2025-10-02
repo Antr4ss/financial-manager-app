@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
-import User from '../models/User.js';
+import User from '../models/User.mjs';
 
 /**
  * Genera un token JWT para el usuario
@@ -9,7 +9,7 @@ const generateToken = (userId) => {
   return jwt.sign(
     { userId },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    { expiresIn: process.env.JWT_EXPIRE || '15m' } // 15 minutos por defecto
   );
 };
 
@@ -66,7 +66,7 @@ const register = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+      maxAge: 15 * 60 * 1000 // 15 minutos
     });
 
     res.status(201).json({
@@ -158,7 +158,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+      maxAge: 15 * 60 * 1000 // 15 minutos
     });
 
     res.json({
@@ -368,11 +368,45 @@ const logout = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Refresh token
+ * @route   POST /api/auth/refresh
+ * @access  Private
+ */
+const refreshToken = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    
+    // Generate new token
+    const newToken = generateToken(userId);
+    
+    // Update last login
+    await req.user.updateLastLogin();
+    
+    res.json({
+      success: true,
+      message: 'Token renovado exitosamente',
+      token: newToken
+    });
+
+  } catch (error) {
+    console.error('Error renovando token:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Error interno del servidor',
+        details: 'Error renovando el token'
+      }
+    });
+  }
+};
+
 export {
   register,
   login,
   getMe,
   updateProfile,
   changePassword,
-  logout
+  logout,
+  refreshToken
 };

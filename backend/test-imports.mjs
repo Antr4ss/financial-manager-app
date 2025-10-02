@@ -23,7 +23,7 @@ console.log('✅ dotenv funciona');
 
 // Probar importaciones de rutas
 try {
-  const authRoutes = await import('./src/routes/auth.js');
+  const authRoutes = await import('./src/routes/auth.mjs');
   console.log('✅ Rutas de auth importadas correctamente');
 } catch (error) {
   console.error('❌ Error importando rutas de auth:', error.message);
@@ -31,7 +31,7 @@ try {
 
 // Probar importaciones de middleware
 try {
-  const { authenticateToken } = await import('./src/middleware/auth.js');
+  const { authenticateToken } = await import('./src/middleware/auth.mjs');
   console.log('✅ Middleware de auth importado correctamente');
 } catch (error) {
   console.error('❌ Error importando middleware de auth:', error.message);
@@ -39,7 +39,7 @@ try {
 
 // Probar importaciones de modelos
 try {
-  const User = await import('./src/models/User.js');
+  const User = await import('./src/models/User.mjs');
   console.log('✅ Modelo User importado correctamente');
 } catch (error) {
   console.error('❌ Error importando modelo User:', error.message);
@@ -47,7 +47,7 @@ try {
 
 // Probar importaciones de configuración
 try {
-  const { swaggerSpec, swaggerUi } = await import('./src/config/swagger.js');
+  const { swaggerSpec, swaggerUi } = await import('./src/config/swagger.mjs');
   console.log('✅ Configuración de Swagger importada correctamente');
 } catch (error) {
   console.error('❌ Error importando configuración de Swagger:', error.message);

@@ -240,13 +240,13 @@ const paramValidations = {
 const settingsValidations = {
   currency: body('preferences.currency')
     .optional()
-    .isIn(['USD', 'EUR', 'MXN', 'COP', 'ARS', 'BRL'])
-    .withMessage('Moneda no válida'),
+    .isIn(['COP'])
+    .withMessage('Moneda no válida. Solo se permite COP (Peso Colombiano)'),
 
   language: body('preferences.language')
     .optional()
-    .isIn(['es', 'en', 'pt'])
-    .withMessage('Idioma no válido'),
+    .isIn(['es'])
+    .withMessage('Idioma no válido. Solo se permite Español (es)'),
 
   emailNotifications: body('preferences.notifications.email')
     .optional()
@@ -266,7 +266,7 @@ const customValidations = {
   // Validar que el email no esté en uso
   uniqueEmail: (field = 'email') => body(field)
     .custom(async (value) => {
-      const { default: User } = await import('../models/User.js');
+      const { default: User } = await import('../models/User.mjs');
       const user = await User.findOne({ email: value });
       if (user) {
         throw new Error('Este email ya está registrado');
@@ -277,7 +277,7 @@ const customValidations = {
   // Validar que el email exista en la base de datos
   existingEmail: (field = 'email') => body(field)
     .custom(async (value) => {
-      const { default: User } = await import('../models/User.js');
+      const { default: User } = await import('../models/User.mjs');
       const user = await User.findOne({ email: value });
       if (!user) {
         throw new Error('Este email no está registrado');
@@ -297,7 +297,7 @@ const customValidations = {
   // Validar que la contraseña actual sea correcta
   currentPasswordMatch: (field = 'currentPassword') => body(field)
     .custom(async (value, { req }) => {
-      const { default: User } = await import('../models/User.js');
+      const { default: User } = await import('../models/User.mjs');
       const user = await User.findById(req.user._id);
       if (!user) {
         throw new Error('Usuario no encontrado');

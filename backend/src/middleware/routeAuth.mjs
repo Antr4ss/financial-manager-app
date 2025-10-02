@@ -100,7 +100,7 @@ const protectAdminRoute = async (req, res, next) => {
     }
     
     // Verificar rol de administrador
-    const { default: User } = await import('../models/User.js');
+    const { default: User } = await import('../models/User.mjs');
     const user = await User.findById(decoded.userId).select('role');
     
     if (!user || user.role !== 'admin') {

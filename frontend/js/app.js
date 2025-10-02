@@ -7,6 +7,9 @@
 let currentUser = null;
 let authToken = null;
 let userPreferences = null;
+let sessionTimeout = null;
+let sessionWarningTimeout = null;
+let lastActivity = Date.now();
 
 // Determine API base URL based on environment
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -32,6 +35,9 @@ function initializeApp() {
         if (currentUser && currentUser.preferences) {
             userPreferences = currentUser.preferences;
         }
+        
+        // Initialize session management
+        initializeSessionManagement();
     }
 
     // Setup event listeners
@@ -676,8 +682,12 @@ async function loadSettings() {
         if (data.success) {
             const preferences = data.data.preferences;
             
+            // Update global preferences
+            userPreferences = preferences;
+            
+            // Update form fields
             const currency = document.getElementById('currency');
-            if (currency) currency.value = preferences.currency || 'USD';
+            if (currency) currency.value = preferences.currency || 'COP';
             
             const language = document.getElementById('language');
             if (language) language.value = preferences.language || 'es';
@@ -687,10 +697,20 @@ async function loadSettings() {
             
             const pushNotifications = document.getElementById('pushNotifications');
             if (pushNotifications) pushNotifications.checked = preferences.notifications?.push || false;
+            
+            // Update currentUser preferences in localStorage
+            if (currentUser) {
+                currentUser.preferences = preferences;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
+            console.log('Settings loaded successfully:', preferences);
+        } else {
+            showAlert('Error cargando la configuración: ' + (data.error?.message || 'Error desconocido'), 'danger');
         }
     } catch (error) {
         console.error('Settings load error:', error);
-        showAlert('Error cargando la configuración', 'danger');
+        showAlert('Error de conexión al cargar la configuración', 'danger');
     }
 }
 
@@ -699,6 +719,14 @@ async function loadSettings() {
  */
 async function handleSettingsSubmit(e) {
     e.preventDefault();
+    
+    // Show loading indicator
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Guardando...';
+    submitButton.disabled = true;
+    
+    showAlert('⏳ Guardando configuración...', 'loading');
     
     const preferences = {
         currency: document.getElementById('currency').value,
@@ -731,18 +759,30 @@ async function handleSettingsSubmit(e) {
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
             
-            showAlert('Configuración actualizada exitosamente', 'success');
+            // Show success message
+            let successMessage = '✅ Configuración actualizada exitosamente';
             
-            // Reload page to apply currency changes
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
+            // Check if notifications were changed
+            const emailChanged = preferences.notifications.email !== (currentUser?.preferences?.notifications?.email || false);
+            const pushChanged = preferences.notifications.push !== (currentUser?.preferences?.notifications?.push || false);
+            
+            if (emailChanged || pushChanged) {
+                successMessage += '\n🔔 Preferencias de notificaciones actualizadas';
+            }
+            
+            showAlert(successMessage, 'success');
+            
+            // No need to reload page since currency and language are fixed
         } else {
             showAlert(data.error.message || 'Error al actualizar la configuración', 'danger');
         }
     } catch (error) {
         console.error('Settings submit error:', error);
         showAlert('Error de conexión. Intenta de nuevo.', 'danger');
+    } finally {
+        // Restore button state
+        submitButton.innerHTML = originalButtonText;
+        submitButton.disabled = false;
     }
 }
 
@@ -752,14 +792,24 @@ async function handleSettingsSubmit(e) {
 async function handleChangePassword(e) {
     e.preventDefault();
     
+    // Show loading indicator
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Cambiando...';
+    submitButton.disabled = true;
+    
     const currentPassword = document.getElementById('currentPassword').value;
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmNewPassword').value;
     
     if (newPassword !== confirmPassword) {
-        showAlert('Las contraseñas no coinciden', 'danger');
+        showAlert('❌ Las contraseñas no coinciden', 'danger');
+        submitButton.innerHTML = originalButtonText;
+        submitButton.disabled = false;
         return;
     }
+    
+    showAlert('🔐 Cambiando contraseña...', 'loading');
     
     try {
         const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
@@ -774,14 +824,23 @@ async function handleChangePassword(e) {
         const data = await response.json();
         
         if (data.success) {
-            showAlert('Contraseña actualizada exitosamente', 'success');
+            showAlert('🔐 Contraseña actualizada exitosamente\n✅ Tu cuenta ahora está más segura', 'success');
             document.getElementById('changePasswordForm').reset();
+            
+            // Show additional security tip
+            setTimeout(() => {
+                showAlert('💡 Consejo: Recuerda usar una contraseña única y segura', 'info');
+            }, 3000);
         } else {
-            showAlert(data.error.message || 'Error al cambiar la contraseña', 'danger');
+            showAlert('❌ ' + (data.error.message || 'Error al cambiar la contraseña'), 'danger');
         }
     } catch (error) {
         console.error('Change password error:', error);
-        showAlert('Error de conexión. Intenta de nuevo.', 'danger');
+        showAlert('❌ Error de conexión. Intenta de nuevo.', 'danger');
+    } finally {
+        // Restore button state
+        submitButton.innerHTML = originalButtonText;
+        submitButton.disabled = false;
     }
 }
 
@@ -1128,14 +1187,33 @@ function showAlert(message, type = 'info') {
     const existingAlerts = alertContainer.querySelectorAll('.alert');
     existingAlerts.forEach(alert => alert.remove());
     
+    // Map alert types to template names
+    const typeMap = {
+        'success': 'successAlertTemplate',
+        'danger': 'errorAlertTemplate',
+        'error': 'errorAlertTemplate',
+        'warning': 'warningAlertTemplate',
+        'info': 'infoAlertTemplate',
+        'loading': 'loadingAlertTemplate'
+    };
+    
     // Get template
-    const template = document.getElementById(`${type}AlertTemplate`);
+    const templateId = typeMap[type] || typeMap['info'];
+    const template = document.getElementById(templateId);
     if (!template) return;
     
     // Clone template
     const alertDiv = template.cloneNode(true);
     alertDiv.classList.remove('d-none');
-    alertDiv.querySelector('.alert-message').textContent = message;
+    alertDiv.removeAttribute('id'); // Remove ID to avoid duplicates
+    
+    // Handle multiline messages
+    const messageElement = alertDiv.querySelector('.alert-message');
+    if (message.includes('\n')) {
+        messageElement.innerHTML = message.replace(/\n/g, '<br>');
+    } else {
+        messageElement.textContent = message;
+    }
     
     // Add to container
     alertContainer.appendChild(alertDiv);
@@ -1199,4 +1277,111 @@ function formatDate(dateString) {
         month: 'short',
         day: 'numeric'
     });
+}
+
+/**
+ * Initialize session management
+ */
+function initializeSessionManagement() {
+    // Track user activity
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    activityEvents.forEach(event => {
+        document.addEventListener(event, updateActivity, true);
+    });
+    
+    // Start session timeout
+    resetSessionTimeout();
+}
+
+/**
+ * Update user activity timestamp
+ */
+function updateActivity() {
+    lastActivity = Date.now();
+    resetSessionTimeout();
+}
+
+/**
+ * Reset session timeout
+ */
+function resetSessionTimeout() {
+    // Clear existing timeouts
+    if (sessionTimeout) clearTimeout(sessionTimeout);
+    if (sessionWarningTimeout) clearTimeout(sessionWarningTimeout);
+    
+    // Set warning timeout (13 minutes - 2 minutes before expiration)
+    sessionWarningTimeout = setTimeout(() => {
+        showSessionWarning();
+    }, 13 * 60 * 1000); // 13 minutos
+    
+    // Set session timeout (15 minutes)
+    sessionTimeout = setTimeout(() => {
+        handleSessionExpired();
+    }, 15 * 60 * 1000); // 15 minutos
+}
+
+/**
+ * Show session warning
+ */
+function showSessionWarning() {
+    showAlert('⚠️ Tu sesión expirará en 2 minutos por inactividad.\n🔄 Haz clic en cualquier lugar para mantener la sesión activa.', 'warning');
+    
+    // Auto-extend session if user becomes active within 2 minutes
+    const extendSession = () => {
+        showAlert('✅ Sesión extendida exitosamente', 'success');
+        document.removeEventListener('click', extendSession);
+        document.removeEventListener('keypress', extendSession);
+        document.removeEventListener('mousemove', extendSession);
+    };
+    
+    document.addEventListener('click', extendSession, { once: true });
+    document.addEventListener('keypress', extendSession, { once: true });
+    document.addEventListener('mousemove', extendSession, { once: true });
+}
+
+/**
+ * Handle session expiration
+ */
+function handleSessionExpired() {
+    // Clear session data
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    authToken = null;
+    currentUser = null;
+    
+    // Show expiration message
+    showAlert('🔒 Tu sesión ha expirado por inactividad.\n🔄 Serás redirigido al login en 3 segundos.', 'warning');
+    
+    // Redirect to login after 3 seconds
+    setTimeout(() => {
+        window.location.href = '/login';
+    }, 3000);
+}
+
+/**
+ * Extend session (refresh token)
+ */
+async function extendSession() {
+    if (!authToken) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.token) {
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            resetSessionTimeout();
+        }
+    } catch (error) {
+        console.error('Error extending session:', error);
+    }
 }

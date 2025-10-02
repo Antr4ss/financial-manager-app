@@ -5,8 +5,8 @@ import {
   getFinancialReport,
   getSettings,
   updateSettings
-} from '../controllers/userController.js';
-import { authenticateToken } from '../middleware/auth.js';
+} from '../controllers/userController.mjs';
+import { authenticateToken } from '../middleware/auth.mjs';
 
 const router = express.Router();
 
@@ -386,12 +386,12 @@ router.get('/settings', getSettings);
 router.put('/settings', [
   body('preferences.currency')
     .optional()
-    .isIn(['USD', 'EUR', 'MXN', 'COP', 'ARS', 'BRL'])
-    .withMessage('Moneda no válida'),
+    .isIn(['COP'])
+    .withMessage('Moneda no válida. Solo se permite COP (Peso Colombiano)'),
   body('preferences.language')
     .optional()
-    .isIn(['es', 'en', 'pt'])
-    .withMessage('Idioma no válido'),
+    .isIn(['es'])
+    .withMessage('Idioma no válido. Solo se permite Español (es)'),
   body('preferences.notifications.email')
     .optional()
     .isBoolean()

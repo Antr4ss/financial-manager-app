@@ -1,6 +1,6 @@
-import Income from '../models/Income.js';
-import Expense from '../models/Expense.js';
-import User from '../models/User.js';
+import Income from '../models/Income.mjs';
+import Expense from '../models/Expense.mjs';
+import User from '../models/User.mjs';
 
 /**
  * Validar que el usuario tenga permisos para acceder a un recurso

@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "Aplicación web para gestión de finanzas personales y de negocio",
   "type": "module",
-  "main": "backend/src/app.js",
+  "main": "backend/src/app.mjs",
   "scripts": {
-    "start": "node backend/src/app.js",
-    "dev": "nodemon backend/src/app.js",
+    "start": "node backend/src/app.mjs",
+    "dev": "nodemon backend/src/app.mjs",
     "test": "jest",
     "build": "echo 'No build step required'",
     "vercel-build": "echo 'No build step required'"

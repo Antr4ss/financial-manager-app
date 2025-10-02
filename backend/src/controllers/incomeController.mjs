@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
-import Income from '../models/Income.js';
-import { handleValidationErrors } from '../middleware/validation.js';
+import Income from '../models/Income.mjs';
+import { handleValidationErrors } from '../middleware/validation.mjs';
 
 /**
  * @desc    Obtener todos los ingresos del usuario
